@@ -18,7 +18,7 @@ def get_all_cities():
     CONNECTION = psycopg2.connect(user=USER,
                                   password=PASS,
                                   host="127.0.0.1",
-                                  port="5432",
+                                  port="5433",
                                   database=DB)
     CURSOR = CONNECTION.cursor()
     CURSOR.execute("""SELECT * from ciudades;""")
@@ -35,16 +35,38 @@ def greet(name='Stranger'):
 @get('/login') # o @route('/login')
 def login():
     return """
-        <form action="/login" method="post">
+        <form action="/do_login" method="post">
             Username: <input name="username" type="text" />
             Password: <input name="password" type="password" />
             <input value="Login" type="submit" />
         </form>
     """
 
-@post('/login') # o @route('/login', method='POST')
+@post('/do_login', method='POST') # o @route('/login', method='POST')
 def do_login():
-    return "Login correct"
+    # buscar el usuario
+    username = 'wara'
+    password = 'wara'
+    CONNECTION = psycopg2.connect(user=USER,
+                                  password=PASS,
+                                  host="127.0.0.1",
+                                  port="5433",
+                                  database=DB)
+    CURSOR = CONNECTION.cursor()
+    CURSOR.execute("""select count(*) from usuarios
+where username='%s' and password='%s';"""%(username, password))
+    result = CURSOR.fetchall()
+    # count = [row[0] for row in CURSOR.description]
+    print (result)
+    CURSOR.close()
+    # si existe: login correct
+    if result[0][0] == 1:
+        return "Login correct"
+    # si no existe: login fail
+    else:
+        return "Login failed!"
+
+
 
 @error(404)
 def error404(error):
